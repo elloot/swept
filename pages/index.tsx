@@ -23,7 +23,7 @@ export default function Home() {
 
     for (let i = 0; i < 99; i++) {
       const tileIndex = indices[Math.floor(Math.random() * indices.length)];
-      tempBoard[tileIndex] = 1;
+      tempBoard[tileIndex] = -1;
       indices.splice(indices.indexOf(tileIndex), 1);
     }
 
