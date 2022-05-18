@@ -16,6 +16,8 @@ export const Tile: React.FC<TileProps> = ({
   value
 }) => {
   return (
-    <div style={{ width: width + 'px', height: height + 'px' }}>{value}</div>
+    <div style={{ width: width + 'px', height: height + 'px', margin: '11px' }}>
+      {value}
+    </div>
   );
 };
