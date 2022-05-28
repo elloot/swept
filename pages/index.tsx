@@ -1,11 +1,11 @@
 import { Tile } from '../components/Tile';
-import { useEffect, useState } from 'react';
+import { createRef, useEffect, useState } from 'react';
 
 export default function Home() {
   const width = 30;
   const height = 16;
-  //const board: number[] = Array(width * height);
   const [board, setBoard] = useState<number[]>(Array(width * height));
+  const tiles: React.RefObject<Tile>[] = [];
 
   function coordsToIndex(x: number, y: number) {
     return y * width + x;
@@ -13,6 +13,46 @@ export default function Home() {
 
   function indexToCoords(index: number) {
     return { x: index % width, y: Math.floor(index / width) };
+  }
+
+  function clickHandler(index: number): void {
+    if (board[index] === 0) {
+      const visitedZeroTiles = [index];
+      revealClosestTiles(index, visitedZeroTiles);
+    }
+  }
+
+  function revealClosestTiles(index: number, visitedZeroTiles: number[]): void {
+    const tileNumber = board[index];
+    const tilePos = indexToCoords(index);
+    if (tileNumber === 0) {
+      for (let y = -1; y <= 1; y++) {
+        for (let x = -1; x <= 1; x++) {
+          if (
+            tilePos.x + x >= 0 &&
+            tilePos.x + x < width &&
+            tilePos.y + y >= 0 &&
+            tilePos.y + y < height
+          ) {
+            const currentTilePos = coordsToIndex(tilePos.x + x, tilePos.y + y);
+
+            if (
+              board[currentTilePos] === 0 &&
+              !visitedZeroTiles.includes(currentTilePos)
+            ) {
+              visitedZeroTiles.push(currentTilePos);
+              revealClosestTiles(currentTilePos, visitedZeroTiles);
+            }
+
+            if (tiles[currentTilePos] == undefined) {
+              console.log(currentTilePos);
+            }
+
+            tiles[currentTilePos].current.setFace('CLEAR');
+          }
+        }
+      }
+    }
   }
 
   useEffect(() => {
@@ -31,21 +71,18 @@ export default function Home() {
       indices.splice(indices.indexOf(tileIndex), 1);
     }
 
-    const tempTempBoard = tempBoard.slice();
-
     for (let i = 0; i < tempBoard.length; i++) {
       const currentTile = tempBoard[i];
       const currentTilePos = indexToCoords(i);
-      console.log(currentTilePos.x, currentTilePos.y);
       let mineCount = 0;
-      if (currentTile !== -1) {
+      if (currentTile === 0) {
         for (let y = -1; y <= 1; y++) {
           for (let x = -1; x <= 1; x++) {
             if (
               currentTilePos.x + x >= 0 &&
               currentTilePos.x + x < width &&
               currentTilePos.y + y >= 0 &&
-              currentTilePos.y < height
+              currentTilePos.y + y < height
             ) {
               if (
                 tempBoard[
@@ -57,13 +94,11 @@ export default function Home() {
             }
           }
         }
-        tempTempBoard[i] = mineCount;
+        tempBoard[i] = mineCount;
       }
     }
 
-    setBoard(tempTempBoard);
-
-    console.log(tempBoard.filter((value) => value == 1).length);
+    setBoard(tempBoard);
   }, []);
 
   return (
@@ -75,16 +110,21 @@ export default function Home() {
         flexWrap: 'wrap'
       }}
     >
-      {board.map((value, index) => (
-        <Tile
-          width={10}
-          height={10}
-          handleClick={() => null}
-          value={value}
-          index={index}
-          key={index}
-        />
-      ))}
+      {board.map((value, index) => {
+        const tileRef = createRef<Tile>();
+        tiles.push(tileRef);
+        return (
+          <Tile
+            width={10}
+            height={10}
+            handleClick={clickHandler}
+            value={value}
+            index={index}
+            key={index}
+            ref={tileRef}
+          />
+        );
+      })}
     </div>
   );
 }
