@@ -1,10 +1,13 @@
 import { Tile } from '../components/Tile';
-import { createRef, useEffect, useState } from 'react';
+import { createRef, useCallback, useEffect, useMemo, useState } from 'react';
 
 export default function Home() {
+  const [hasRun, setHasRun] = useState<boolean>(false);
+  const [indexOfFirstClickedTile, setIndexOfFirstClickedTile] =
+    useState<number>();
   const width = 30;
   const height = 16;
-  const [board, setBoard] = useState<number[]>(Array(width * height));
+  const [board, setBoard] = useState<number[]>(Array(width * height).fill(1));
   const tiles: React.RefObject<Tile>[] = [];
 
   function coordsToIndex(x: number, y: number) {
@@ -16,50 +19,71 @@ export default function Home() {
   }
 
   function clickHandler(index: number): void {
+    if (!hasRun) {
+      setHasRun(true);
+      generateBoard(index);
+      setIndexOfFirstClickedTile(index);
+    }
+
     if (board[index] === 0) {
       const visitedZeroTiles = [index];
       revealClosestTiles(index, visitedZeroTiles);
     }
   }
 
-  function revealClosestTiles(index: number, visitedZeroTiles: number[]): void {
-    const tileNumber = board[index];
-    const tilePos = indexToCoords(index);
-    if (tileNumber === 0) {
-      for (let y = -1; y <= 1; y++) {
-        for (let x = -1; x <= 1; x++) {
-          if (
-            tilePos.x + x >= 0 &&
-            tilePos.x + x < width &&
-            tilePos.y + y >= 0 &&
-            tilePos.y + y < height
-          ) {
-            const currentTilePos = coordsToIndex(tilePos.x + x, tilePos.y + y);
-
+  const revealClosestTiles = useCallback(
+    (index, visitedZeroTiles) => {
+      const tileNumber = board[index];
+      const tilePos = indexToCoords(index);
+      if (tileNumber === 0) {
+        for (let y = -1; y <= 1; y++) {
+          for (let x = -1; x <= 1; x++) {
             if (
-              board[currentTilePos] === 0 &&
-              !visitedZeroTiles.includes(currentTilePos)
+              tilePos.x + x >= 0 &&
+              tilePos.x + x < width &&
+              tilePos.y + y >= 0 &&
+              tilePos.y + y < height
             ) {
-              visitedZeroTiles.push(currentTilePos);
-              revealClosestTiles(currentTilePos, visitedZeroTiles);
-            }
+              const currentTilePos = coordsToIndex(
+                tilePos.x + x,
+                tilePos.y + y
+              );
 
-            if (tiles[currentTilePos] == undefined) {
-              console.log(currentTilePos);
-            }
+              if (
+                board[currentTilePos] === 0 &&
+                !visitedZeroTiles.includes(currentTilePos)
+              ) {
+                visitedZeroTiles.push(currentTilePos);
+                revealClosestTiles(currentTilePos, visitedZeroTiles);
+              }
 
-            tiles[currentTilePos].current.setFace('CLEAR');
+              if (tiles[currentTilePos] == undefined) {
+                console.log(currentTilePos);
+              }
+
+              tiles[currentTilePos].current.setFace('CLEAR');
+            }
           }
         }
       }
-    }
-  }
+    },
+    [board, tiles]
+  );
 
   useEffect(() => {
+    if (board[indexOfFirstClickedTile] === 0) {
+      const visitedZeroTiles = [indexOfFirstClickedTile];
+      revealClosestTiles(indexOfFirstClickedTile, visitedZeroTiles);
+    }
+  }, [indexOfFirstClickedTile, board, revealClosestTiles]);
+
+  function generateBoard(firstTileIndex: number) {
     let indices: number[] = [];
     for (let i = 0; i < width * height; i++) {
       indices.push(i);
     }
+
+    indices.splice(indices.indexOf(firstTileIndex), 1);
 
     let tempBoard: number[] = Array(width * height);
 
@@ -99,7 +123,9 @@ export default function Home() {
     }
 
     setBoard(tempBoard);
-  }, []);
+
+    return tempBoard;
+  }
 
   return (
     <div
