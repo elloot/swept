@@ -42,9 +42,9 @@ export default function Home() {
         for (let y = -1; y <= 1; y++) {
           for (let x = -1; x <= 1; x++) {
             if (
-              currentTilePos.x + x > 0 &&
+              currentTilePos.x + x >= 0 &&
               currentTilePos.x + x < width &&
-              currentTilePos.y + y > 0 &&
+              currentTilePos.y + y >= 0 &&
               currentTilePos.y < height
             ) {
               if (
