@@ -37,10 +37,12 @@ export class Tile extends React.Component<TileProps> {
         }}
         onContextMenu={(e) => {
           e.preventDefault();
-          if (this.state.face === 'FLAGGED') {
-            this.setFace('HIDDEN');
-          } else {
-            this.setFace('FLAGGED');
+          if (this.state.face !== 'CLEAR' && this.state.face !== 'MINE') {
+            if (this.state.face === 'FLAGGED') {
+              this.setFace('HIDDEN');
+            } else {
+              this.setFace('FLAGGED');
+            }
           }
         }}
         className={styles[this.state.face.toLowerCase()]}
