@@ -21,7 +21,7 @@ export default function Home() {
   function clickHandler(index: number): void {
     if (!hasRun) {
       setHasRun(true);
-      generateBoard(index);
+      setBoard(generateBoard(index));
       setIndexOfFirstClickedTile(index);
     }
 
@@ -92,7 +92,7 @@ export default function Home() {
       }
     }
 
-    setBoard(tempBoard);
+    return tempBoard;
   }
 
   function iterateOverClosestTiles(
