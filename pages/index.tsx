@@ -123,8 +123,6 @@ export default function Home() {
     }
 
     setBoard(tempBoard);
-
-    return tempBoard;
   }
 
   return (
