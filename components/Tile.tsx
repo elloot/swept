@@ -47,6 +47,7 @@ export class Tile extends React.Component<TileProps> {
       >
         {this.state.face === 'CLEAR' &&
           this.props.value !== -1 &&
+          this.props.value !== 0 &&
           this.props.value}
       </div>
     );
