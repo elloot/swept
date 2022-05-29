@@ -14,7 +14,7 @@ export default function Home() {
     return y * width + x;
   }
 
-  function indexToCoords(index: number) {
+  function indexToCoords(index: number): { x: number; y: number } {
     return { x: index % width, y: Math.floor(index / width) };
   }
 
@@ -33,38 +33,21 @@ export default function Home() {
 
   const revealClosestTiles = useCallback(
     (index, visitedZeroTiles) => {
-      const tileNumber = board[index];
-      const tilePos = indexToCoords(index);
-      if (tileNumber === 0) {
-        for (let y = -1; y <= 1; y++) {
-          for (let x = -1; x <= 1; x++) {
-            if (
-              tilePos.x + x >= 0 &&
-              tilePos.x + x < width &&
-              tilePos.y + y >= 0 &&
-              tilePos.y + y < height
-            ) {
-              const currentTilePos = coordsToIndex(
-                tilePos.x + x,
-                tilePos.y + y
-              );
-
-              if (
-                board[currentTilePos] === 0 &&
-                !visitedZeroTiles.includes(currentTilePos)
-              ) {
-                visitedZeroTiles.push(currentTilePos);
-                revealClosestTiles(currentTilePos, visitedZeroTiles);
-              }
-
-              if (tiles[currentTilePos] == undefined) {
-                console.log(currentTilePos);
-              }
-
-              tiles[currentTilePos].current.setFace('CLEAR');
-            }
+      const tileValue = board[index];
+      if (tileValue === 0) {
+        const tilePos = indexToCoords(index);
+        iterateOverClosestTiles(tilePos, (closeTile) => {
+          const closeTileIndex = coordsToIndex(closeTile.x, closeTile.y);
+          if (
+            board[closeTileIndex] === 0 &&
+            !visitedZeroTiles.includes(closeTileIndex)
+          ) {
+            visitedZeroTiles.push(closeTileIndex);
+            revealClosestTiles(closeTileIndex, visitedZeroTiles);
           }
-        }
+
+          tiles[closeTileIndex].current.setFace('CLEAR');
+        });
       }
     },
     [board, tiles]
@@ -96,33 +79,38 @@ export default function Home() {
     }
 
     for (let i = 0; i < tempBoard.length; i++) {
-      const currentTile = tempBoard[i];
-      const currentTilePos = indexToCoords(i);
+      const tileValue = tempBoard[i];
       let mineCount = 0;
-      if (currentTile === 0) {
-        for (let y = -1; y <= 1; y++) {
-          for (let x = -1; x <= 1; x++) {
-            if (
-              currentTilePos.x + x >= 0 &&
-              currentTilePos.x + x < width &&
-              currentTilePos.y + y >= 0 &&
-              currentTilePos.y + y < height
-            ) {
-              if (
-                tempBoard[
-                  coordsToIndex(currentTilePos.x + x, currentTilePos.y + y)
-                ] == -1
-              ) {
-                mineCount++;
-              }
-            }
+      if (tileValue === 0) {
+        const tilePos = indexToCoords(i);
+        iterateOverClosestTiles(tilePos, (closeTile) => {
+          if (tempBoard[coordsToIndex(closeTile.x, closeTile.y)] == -1) {
+            mineCount++;
           }
-        }
+        });
         tempBoard[i] = mineCount;
       }
     }
 
     setBoard(tempBoard);
+  }
+
+  function iterateOverClosestTiles(
+    centerTilePos: { x: number; y: number },
+    callback: (closeTile: { x: number; y: number }) => void
+  ) {
+    for (let y = -1; y <= 1; y++) {
+      for (let x = -1; x <= 1; x++) {
+        if (
+          centerTilePos.x + x >= 0 &&
+          centerTilePos.x + x < width &&
+          centerTilePos.y + y >= 0 &&
+          centerTilePos.y + y < height
+        ) {
+          callback({ x: centerTilePos.x + x, y: centerTilePos.y + y });
+        }
+      }
+    }
   }
 
   return (
