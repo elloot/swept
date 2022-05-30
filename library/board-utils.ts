@@ -99,5 +99,6 @@ export {
   indexToCoords,
   generateBoardWithMines,
   fillBoardWithMineCounts,
-  iterateOverClosestTiles
+  iterateOverClosestTiles,
+  countMinesNearTile
 };
