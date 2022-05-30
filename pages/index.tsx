@@ -5,7 +5,8 @@ import {
   fillBoardWithMineCounts,
   indexToCoords,
   coordsToIndex,
-  iterateOverClosestTiles
+  iterateOverClosestTiles,
+  countMinesNearTile
 } from '../library/board-utils';
 
 export default function Home() {
@@ -18,6 +19,103 @@ export default function Home() {
     Array(boardWidth * boardHeight).fill(1)
   );
   const tiles: React.RefObject<Tile>[] = [];
+
+  function revealNearestIfCorrectlyFlagged(tileIndex: number) {
+    if (
+      countNearestFlags(tileIndex) ===
+      countMinesNearTile(tileIndex, board, boardWidth, boardHeight)
+    ) {
+      if (flagsNearTileAreValid(tileIndex, getNearestFlags(tileIndex))) {
+        iterateOverClosestTiles(
+          indexToCoords(tileIndex, boardWidth),
+          boardWidth,
+          boardHeight,
+          (closeTilePos) => {
+            const closeTileIndex = coordsToIndex(
+              closeTilePos.x,
+              closeTilePos.y,
+              boardWidth
+            );
+            const closeTile = tiles[closeTileIndex].current;
+            if (
+              closeTile.getValue() !== -1 &&
+              (closeTile.getFace() === 'HIDDEN' ||
+                closeTile.getFace() === 'HIGHLIGHTED')
+            ) {
+              closeTile.setFace('CLEAR');
+              if (closeTile.getValue() === 0) {
+                revealClosestTiles(closeTileIndex, [closeTileIndex]);
+              }
+            }
+          }
+        );
+      } else {
+        // GAME OVER
+      }
+    }
+  }
+
+  function flagsNearTileAreValid(tileIndex: number, nearestFlags: number[]) {
+    let flagsAreValid = true;
+    iterateOverClosestTiles(
+      indexToCoords(tileIndex, boardWidth),
+      boardWidth,
+      boardHeight,
+      (closeTilePos) => {
+        const closeTile =
+          tiles[coordsToIndex(closeTilePos.x, closeTilePos.y, boardWidth)]
+            .current;
+        if (closeTile.getValue() === -1) {
+          if (
+            !nearestFlags.includes(
+              coordsToIndex(closeTilePos.x, closeTilePos.y, boardWidth)
+            )
+          ) {
+            console.log(closeTilePos, nearestFlags);
+            flagsAreValid = false;
+            return;
+          }
+        }
+      }
+    );
+    return flagsAreValid;
+  }
+
+  function getNearestFlags(tileIndex: number): number[] {
+    const flags: number[] = [];
+    iterateOverClosestTiles(
+      indexToCoords(tileIndex, boardWidth),
+      boardWidth,
+      boardHeight,
+      (closeTilePos) => {
+        const closeTile =
+          tiles[coordsToIndex(closeTilePos.x, closeTilePos.y, boardWidth)]
+            .current;
+        if (closeTile.getFace() === 'FLAGGED') {
+          flags.push(coordsToIndex(closeTilePos.x, closeTilePos.y, boardWidth));
+        }
+      }
+    );
+    return flags;
+  }
+
+  function countNearestFlags(tileIndex: number): number {
+    let flagCount = 0;
+    iterateOverClosestTiles(
+      indexToCoords(tileIndex, boardWidth),
+      boardWidth,
+      boardHeight,
+      (closeTilePos) => {
+        const closeTile =
+          tiles[coordsToIndex(closeTilePos.x, closeTilePos.y, boardWidth)]
+            .current;
+        if (closeTile.getFace() === 'FLAGGED') {
+          flagCount++;
+        }
+      }
+    );
+    return flagCount;
+  }
 
   function highlightNearestHiddenTiles(tileIndex: number) {
     iterateOverClosestTiles(
@@ -137,6 +235,7 @@ export default function Home() {
             ref={tileRef}
             hideNearestHighlightedTiles={hideNearestHighlightedTiles}
             highlightNearestHiddenTiles={highlightNearestHiddenTiles}
+            revealNearestIfCorrectlyFlagged={revealNearestIfCorrectlyFlagged}
           />
         );
       })}
