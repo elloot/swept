@@ -33,8 +33,10 @@ function countMinesNearTile(
 ): number {
   const tilePos = indexToCoords(tileIndex, boardWidth);
   let mineCount = 0;
-  iterateOverClosestTiles(tilePos, boardWidth, boardHeight, (closeTile) => {
-    if (tileBoard[coordsToIndex(closeTile.x, closeTile.y, boardWidth)] == -1) {
+  iterateOverClosestTiles(tilePos, boardWidth, boardHeight, (closeTilePos) => {
+    if (
+      tileBoard[coordsToIndex(closeTilePos.x, closeTilePos.y, boardWidth)] == -1
+    ) {
       mineCount++;
     }
   });
@@ -76,7 +78,7 @@ function iterateOverClosestTiles(
   centerTilePos: { x: number; y: number },
   boardWidth: number,
   boardHeight: number,
-  callback: (closeTile: { x: number; y: number }) => void
+  callback: (closeTilePos: { x: number; y: number }) => void
 ) {
   for (let y = -1; y <= 1; y++) {
     for (let x = -1; x <= 1; x++) {
