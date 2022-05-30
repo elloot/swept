@@ -9,6 +9,7 @@ interface TileProps {
   value: number;
   hideNearestHighlightedTiles: (index: number) => void;
   highlightNearestHiddenTiles: (index: number) => void;
+  revealNearestIfCorrectlyFlagged: (index: number) => void;
 }
 
 type Face = 'HIDDEN' | 'FLAGGED' | 'CLEAR' | 'MINE' | 'HIGHLIGHTED';
@@ -27,6 +28,10 @@ export class Tile extends React.Component<TileProps> {
 
   getFace(): Face {
     return this.state.face;
+  }
+
+  getValue(): number {
+    return this.props.value;
   }
 
   render() {
@@ -70,7 +75,6 @@ export class Tile extends React.Component<TileProps> {
           }
         }}
         onMouseUp={(e) => {
-          console.log(e);
           // if left mouse button is released while right mouse button is pressed OR
           // if right mouse button is released while left mouse button is pressed OR
           // if middle mouse button is released
@@ -79,6 +83,9 @@ export class Tile extends React.Component<TileProps> {
             if (this.state.face === 'HIGHLIGHTED') {
               this.setFace('HIDDEN');
             }
+          }
+          if (e.button === 1) {
+            this.props.revealNearestIfCorrectlyFlagged(this.props.index);
           }
         }}
         onContextMenu={(e) => {
