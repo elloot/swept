@@ -19,6 +19,38 @@ export default function Home() {
   );
   const tiles: React.RefObject<Tile>[] = [];
 
+  function highlightNearestHiddenTiles(tileIndex: number) {
+    iterateOverClosestTiles(
+      indexToCoords(tileIndex, boardWidth),
+      boardWidth,
+      boardHeight,
+      (closeTilePos) => {
+        const closeTile =
+          tiles[coordsToIndex(closeTilePos.x, closeTilePos.y, boardWidth)]
+            .current;
+        if (closeTile.getFace() === 'HIDDEN') {
+          closeTile.setFace('HIGHLIGHTED');
+        }
+      }
+    );
+  }
+
+  function hideNearestHighlightedTiles(tileIndex: number) {
+    iterateOverClosestTiles(
+      indexToCoords(tileIndex, boardWidth),
+      boardWidth,
+      boardHeight,
+      (closeTilePos) => {
+        const closeTile =
+          tiles[coordsToIndex(closeTilePos.x, closeTilePos.y, boardWidth)]
+            .current;
+        if (closeTile.getFace() === 'HIGHLIGHTED') {
+          closeTile.setFace('HIDDEN');
+        }
+      }
+    );
+  }
+
   function clickHandler(tileIndex: number): void {
     if (!hasRun) {
       setHasRun(true);
@@ -103,6 +135,8 @@ export default function Home() {
             index={index}
             key={index}
             ref={tileRef}
+            hideNearestHighlightedTiles={hideNearestHighlightedTiles}
+            highlightNearestHiddenTiles={highlightNearestHiddenTiles}
           />
         );
       })}
