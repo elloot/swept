@@ -7,9 +7,9 @@ interface TileProps {
   handleClick: (index: number) => void;
   index: number;
   value: number;
-  hideNearestHighlightedTiles: (index: number) => void;
-  highlightNearestHiddenTiles: (index: number) => void;
-  revealNearestIfCorrectlyFlagged: (index: number) => void;
+  hideClosestHighlightedTiles: (index: number) => void;
+  highlightClosestHiddenTiles: (index: number) => void;
+  revealClosestIfCorrectlyFlagged: (index: number) => void;
 }
 
 type Face = 'HIDDEN' | 'FLAGGED' | 'CLEAR' | 'MINE' | 'HIGHLIGHTED';
@@ -51,7 +51,7 @@ export class Tile extends React.Component<TileProps> {
           if (e.button === 0) {
             // if right mouse button is also pressed
             if (e.buttons === 3) {
-              this.props.highlightNearestHiddenTiles(this.props.index);
+              this.props.highlightClosestHiddenTiles(this.props.index);
             }
             if (this.state.face === 'HIDDEN') {
               this.setFace('HIGHLIGHTED');
@@ -61,7 +61,7 @@ export class Tile extends React.Component<TileProps> {
 
           // if middle mouse button is pressed
           if (e.button === 1) {
-            this.props.highlightNearestHiddenTiles(this.props.index);
+            this.props.highlightClosestHiddenTiles(this.props.index);
           }
 
           // if right mouse button is pressed
@@ -79,13 +79,13 @@ export class Tile extends React.Component<TileProps> {
           // if right mouse button is released while left mouse button is pressed OR
           // if middle mouse button is released
           if (e.buttons === 2 || e.buttons === 1 || e.button === 1) {
-            this.props.hideNearestHighlightedTiles(this.props.index);
+            this.props.hideClosestHighlightedTiles(this.props.index);
             if (this.state.face === 'HIGHLIGHTED') {
               this.setFace('HIDDEN');
             }
           }
           if (e.button === 1) {
-            this.props.revealNearestIfCorrectlyFlagged(this.props.index);
+            this.props.revealClosestIfCorrectlyFlagged(this.props.index);
           }
         }}
         onContextMenu={(e) => {

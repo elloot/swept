@@ -27,12 +27,12 @@ export default function Home() {
     if (shouldReload) window.location.reload();
   }
 
-  function revealNearestIfCorrectlyFlagged(tileIndex: number) {
+  function revealClosestIfCorrectlyFlagged(tileIndex: number) {
     if (
-      countNearestFlags(tileIndex) ===
+      countClosestFlags(tileIndex) ===
       countMinesNearTile(tileIndex, board, boardWidth, boardHeight)
     ) {
-      if (flagsNearTileAreValid(tileIndex, getNearestFlags(tileIndex))) {
+      if (flagsNearTileAreCorrect(tileIndex, getClosestFlags(tileIndex))) {
         iterateOverClosestTiles(
           indexToCoords(tileIndex, boardWidth),
           boardWidth,
@@ -62,8 +62,8 @@ export default function Home() {
     }
   }
 
-  function flagsNearTileAreValid(tileIndex: number, nearestFlags: number[]) {
-    let flagsAreValid = true;
+  function flagsNearTileAreCorrect(tileIndex: number, closestFlags: number[]) {
+    let flagsAreCorrect = true;
     iterateOverClosestTiles(
       indexToCoords(tileIndex, boardWidth),
       boardWidth,
@@ -74,21 +74,21 @@ export default function Home() {
             .current;
         if (closeTile.getValue() === -1) {
           if (
-            !nearestFlags.includes(
+            !closestFlags.includes(
               coordsToIndex(closeTilePos.x, closeTilePos.y, boardWidth)
             )
           ) {
-            console.log(closeTilePos, nearestFlags);
-            flagsAreValid = false;
+            console.log(closeTilePos, closestFlags);
+            flagsAreCorrect = false;
             return;
           }
         }
       }
     );
-    return flagsAreValid;
+    return flagsAreCorrect;
   }
 
-  function getNearestFlags(tileIndex: number): number[] {
+  function getClosestFlags(tileIndex: number): number[] {
     const flags: number[] = [];
     iterateOverClosestTiles(
       indexToCoords(tileIndex, boardWidth),
@@ -106,7 +106,7 @@ export default function Home() {
     return flags;
   }
 
-  function countNearestFlags(tileIndex: number): number {
+  function countClosestFlags(tileIndex: number): number {
     let flagCount = 0;
     iterateOverClosestTiles(
       indexToCoords(tileIndex, boardWidth),
@@ -124,7 +124,7 @@ export default function Home() {
     return flagCount;
   }
 
-  function highlightNearestHiddenTiles(tileIndex: number) {
+  function highlightClosestHiddenTiles(tileIndex: number) {
     iterateOverClosestTiles(
       indexToCoords(tileIndex, boardWidth),
       boardWidth,
@@ -140,7 +140,7 @@ export default function Home() {
     );
   }
 
-  function hideNearestHighlightedTiles(tileIndex: number) {
+  function hideClosestHighlightedTiles(tileIndex: number) {
     iterateOverClosestTiles(
       indexToCoords(tileIndex, boardWidth),
       boardWidth,
@@ -252,9 +252,9 @@ export default function Home() {
             index={index}
             key={index}
             ref={tileRef}
-            hideNearestHighlightedTiles={hideNearestHighlightedTiles}
-            highlightNearestHiddenTiles={highlightNearestHiddenTiles}
-            revealNearestIfCorrectlyFlagged={revealNearestIfCorrectlyFlagged}
+            hideClosestHighlightedTiles={hideClosestHighlightedTiles}
+            highlightClosestHiddenTiles={highlightClosestHiddenTiles}
+            revealClosestIfCorrectlyFlagged={revealClosestIfCorrectlyFlagged}
           />
         );
       })}
