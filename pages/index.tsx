@@ -22,16 +22,20 @@ export default function Home() {
   const [playerHasLost, setPlayerHasLost] = useState<boolean>(false);
   const numberOfRenders = useRef(0);
 
+  function flagCountNearTileIsCorrect(tileIndex: number): boolean {
+    return (
+      countClosestFlags(tileIndex) ===
+      countMinesNearTile(tileIndex, board, boardWidth, boardHeight)
+    );
+  }
+
   function gameOver() {
     const shouldReload = confirm('You lost\n\nConfirm to reload').valueOf();
     if (shouldReload) window.location.reload();
   }
 
   function revealClosestIfCorrectlyFlagged(tileIndex: number) {
-    if (
-      countClosestFlags(tileIndex) ===
-      countMinesNearTile(tileIndex, board, boardWidth, boardHeight)
-    ) {
+    if (flagCountNearTileIsCorrect(tileIndex)) {
       if (flagsNearTileAreCorrect(tileIndex, getClosestFlags(tileIndex))) {
         iterateOverClosestTiles(
           indexToCoords(tileIndex, boardWidth),
@@ -244,6 +248,12 @@ export default function Home() {
       {board.map((value, index) => {
         const tileRef = createRef<Tile>();
         tiles.push(tileRef);
+        const utilityFunctions = {
+          hideClosestHighlightedTiles,
+          highlightClosestHiddenTiles,
+          revealClosestIfCorrectlyFlagged,
+          flagCountNearTileIsCorrect
+        };
         return (
           <Tile
             width={10}
@@ -253,9 +263,7 @@ export default function Home() {
             index={index}
             key={index}
             ref={tileRef}
-            hideClosestHighlightedTiles={hideClosestHighlightedTiles}
-            highlightClosestHiddenTiles={highlightClosestHiddenTiles}
-            revealClosestIfCorrectlyFlagged={revealClosestIfCorrectlyFlagged}
+            {...utilityFunctions}
           />
         );
       })}
