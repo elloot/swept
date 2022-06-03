@@ -1,13 +1,21 @@
 import { Tile } from '../components/Tile';
-import { createRef, useCallback, useEffect, useRef, useState } from 'react';
 import {
-  generateBoardWithMines,
-  fillBoardWithMineCounts,
+  createRef,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState
+} from 'react';
+import {
+  generateBoardWithMines as generateArrayWithMines,
+  fillBoardWithMineCounts as fillTileArrayWithMineCounts,
   indexToCoords,
   coordsToIndex,
   iterateOverClosestTiles,
   countMinesNearTile
 } from '../library/board-utils';
+import { Board } from '../types/board';
 
 export default function Home() {
   const [hasRun, setHasRun] = useState<boolean>(false);
@@ -15,17 +23,26 @@ export default function Home() {
     useState<number>();
   const boardWidth = 30;
   const boardHeight = 16;
-  const [board, setBoard] = useState<number[]>(
+  const [tiles, setTiles] = useState<number[]>(
     Array(boardWidth * boardHeight).fill(1)
   );
-  const tiles: React.RefObject<Tile>[] = [];
+  const board: Board = useMemo(() => {
+    return {
+      width: 30,
+      height: 16,
+      tiles
+    };
+  }, [tiles]);
+  const tileElements: React.RefObject<Tile>[] = useMemo(() => {
+    tiles;
+    return [];
+  }, [tiles]);
   const [playerHasLost, setPlayerHasLost] = useState<boolean>(false);
   const numberOfRenders = useRef(0);
 
   function flagCountNearTileIsCorrect(tileIndex: number): boolean {
     return (
-      countClosestFlags(tileIndex) ===
-      countMinesNearTile(tileIndex, board, boardWidth, boardHeight)
+      countClosestFlags(tileIndex) === countMinesNearTile(tileIndex, board)
     );
   }
 
@@ -38,16 +55,15 @@ export default function Home() {
     if (flagCountNearTileIsCorrect(tileIndex)) {
       if (flagsNearTileAreCorrect(tileIndex, getClosestFlags(tileIndex))) {
         iterateOverClosestTiles(
-          indexToCoords(tileIndex, boardWidth),
-          boardWidth,
-          boardHeight,
+          indexToCoords(tileIndex, board),
+          board,
           (closeTilePos) => {
             const closeTileIndex = coordsToIndex(
               closeTilePos.x,
               closeTilePos.y,
               boardWidth
             );
-            const closeTile = tiles[closeTileIndex].current;
+            const closeTile = tileElements[closeTileIndex].current;
             if (
               closeTile.getValue() !== -1 &&
               (closeTile.getFace() === 'HIDDEN' ||
@@ -69,20 +85,19 @@ export default function Home() {
   function flagsNearTileAreCorrect(tileIndex: number, closestFlags: number[]) {
     let flagsAreCorrect = true;
     iterateOverClosestTiles(
-      indexToCoords(tileIndex, boardWidth),
-      boardWidth,
-      boardHeight,
+      indexToCoords(tileIndex, board),
+      board,
       (closeTilePos) => {
         const closeTile =
-          tiles[coordsToIndex(closeTilePos.x, closeTilePos.y, boardWidth)]
-            .current;
+          tileElements[
+            coordsToIndex(closeTilePos.x, closeTilePos.y, boardWidth)
+          ].current;
         if (closeTile.getValue() === -1) {
           if (
             !closestFlags.includes(
               coordsToIndex(closeTilePos.x, closeTilePos.y, boardWidth)
             )
           ) {
-            console.log(closeTilePos, closestFlags);
             flagsAreCorrect = false;
             return;
           }
@@ -95,13 +110,13 @@ export default function Home() {
   function getClosestFlags(tileIndex: number): number[] {
     const flags: number[] = [];
     iterateOverClosestTiles(
-      indexToCoords(tileIndex, boardWidth),
-      boardWidth,
-      boardHeight,
+      indexToCoords(tileIndex, board),
+      board,
       (closeTilePos) => {
         const closeTile =
-          tiles[coordsToIndex(closeTilePos.x, closeTilePos.y, boardWidth)]
-            .current;
+          tileElements[
+            coordsToIndex(closeTilePos.x, closeTilePos.y, boardWidth)
+          ].current;
         if (closeTile.getFace() === 'FLAGGED') {
           flags.push(coordsToIndex(closeTilePos.x, closeTilePos.y, boardWidth));
         }
@@ -113,13 +128,13 @@ export default function Home() {
   function countClosestFlags(tileIndex: number): number {
     let flagCount = 0;
     iterateOverClosestTiles(
-      indexToCoords(tileIndex, boardWidth),
-      boardWidth,
-      boardHeight,
+      indexToCoords(tileIndex, board),
+      board,
       (closeTilePos) => {
         const closeTile =
-          tiles[coordsToIndex(closeTilePos.x, closeTilePos.y, boardWidth)]
-            .current;
+          tileElements[
+            coordsToIndex(closeTilePos.x, closeTilePos.y, boardWidth)
+          ].current;
         if (closeTile.getFace() === 'FLAGGED') {
           flagCount++;
         }
@@ -130,13 +145,13 @@ export default function Home() {
 
   function highlightClosestHiddenTiles(tileIndex: number) {
     iterateOverClosestTiles(
-      indexToCoords(tileIndex, boardWidth),
-      boardWidth,
-      boardHeight,
+      indexToCoords(tileIndex, board),
+      board,
       (closeTilePos) => {
         const closeTile =
-          tiles[coordsToIndex(closeTilePos.x, closeTilePos.y, boardWidth)]
-            .current;
+          tileElements[
+            coordsToIndex(closeTilePos.x, closeTilePos.y, boardWidth)
+          ].current;
         if (closeTile.getFace() === 'HIDDEN') {
           closeTile.setFace('HIGHLIGHTED');
         }
@@ -146,13 +161,13 @@ export default function Home() {
 
   function hideClosestHighlightedTiles(tileIndex: number) {
     iterateOverClosestTiles(
-      indexToCoords(tileIndex, boardWidth),
-      boardWidth,
-      boardHeight,
+      indexToCoords(tileIndex, board),
+      board,
       (closeTilePos) => {
         const closeTile =
-          tiles[coordsToIndex(closeTilePos.x, closeTilePos.y, boardWidth)]
-            .current;
+          tileElements[
+            coordsToIndex(closeTilePos.x, closeTilePos.y, boardWidth)
+          ].current;
         if (closeTile.getFace() === 'HIGHLIGHTED') {
           closeTile.setFace('HIDDEN');
         }
@@ -163,15 +178,15 @@ export default function Home() {
   function clickHandler(tileIndex: number): void {
     if (!hasRun) {
       setHasRun(true);
-      setBoard(generateBoard(tileIndex));
       setIndexOfFirstClickedTile(tileIndex);
+      setTiles(generateTileArray(tileIndex));
     }
 
-    if (board[tileIndex] === -1) {
+    if (board.tiles[tileIndex] === -1) {
       setPlayerHasLost(true);
     }
 
-    if (board[tileIndex] === 0) {
+    if (board.tiles[tileIndex] === 0) {
       const visitedZeroTiles = [tileIndex];
       revealClosestTiles(tileIndex, visitedZeroTiles);
     }
@@ -179,45 +194,36 @@ export default function Home() {
 
   const revealClosestTiles = useCallback(
     (index: number, visitedZeroTiles: number[]) => {
-      const tileValue = board[index];
+      const tileValue = board.tiles[index];
       if (tileValue === 0) {
-        const tilePos = indexToCoords(index, boardWidth);
-        iterateOverClosestTiles(
-          tilePos,
-          boardWidth,
-          boardHeight,
-          (closeTile) => {
-            const closeTileIndex = coordsToIndex(
-              closeTile.x,
-              closeTile.y,
-              boardWidth
-            );
-            if (
-              board[closeTileIndex] === 0 &&
-              !visitedZeroTiles.includes(closeTileIndex)
-            ) {
-              visitedZeroTiles.push(closeTileIndex);
-              revealClosestTiles(closeTileIndex, visitedZeroTiles);
-            }
-
-            tiles[closeTileIndex].current.setFace('CLEAR');
+        const tilePos = indexToCoords(index, board);
+        iterateOverClosestTiles(tilePos, board, (closeTile) => {
+          const closeTileIndex = coordsToIndex(
+            closeTile.x,
+            closeTile.y,
+            boardWidth
+          );
+          if (
+            board.tiles[closeTileIndex] === 0 &&
+            !visitedZeroTiles.includes(closeTileIndex)
+          ) {
+            visitedZeroTiles.push(closeTileIndex);
+            revealClosestTiles(closeTileIndex, visitedZeroTiles);
           }
-        );
+
+          tileElements[closeTileIndex].current.setFace('CLEAR');
+        });
       }
     },
-    [board, tiles]
+    [board, tileElements]
   );
 
-  function generateBoard(firstTileIndex: number): number[] {
-    const tempBoard = generateBoardWithMines(
-      boardWidth,
-      boardHeight,
-      firstTileIndex
-    );
+  function generateTileArray(firstTileIndex: number): number[] {
+    const tileArray = generateArrayWithMines(board, firstTileIndex);
 
-    fillBoardWithMineCounts(tempBoard, boardWidth, boardHeight);
+    fillTileArrayWithMineCounts(tileArray, board);
 
-    return tempBoard;
+    return tileArray;
   }
 
   useEffect(() => {
@@ -229,11 +235,11 @@ export default function Home() {
   }, [playerHasLost, numberOfRenders]);
 
   useEffect(() => {
-    if (board[indexOfFirstClickedTile] === 0) {
+    if (board.tiles[indexOfFirstClickedTile] === 0) {
       const visitedZeroTiles = [indexOfFirstClickedTile];
       revealClosestTiles(indexOfFirstClickedTile, visitedZeroTiles);
     }
-  }, [indexOfFirstClickedTile, board, revealClosestTiles]);
+  }, [indexOfFirstClickedTile, board.tiles, revealClosestTiles]);
 
   return (
     <div
@@ -245,9 +251,9 @@ export default function Home() {
       }}
       onContextMenu={(e) => e.preventDefault()}
     >
-      {board.map((value, index) => {
+      {board.tiles.map((value, index) => {
         const tileRef = createRef<Tile>();
-        tiles.push(tileRef);
+        tileElements.push(tileRef);
         const utilityFunctions = {
           hideClosestHighlightedTiles,
           highlightClosestHiddenTiles,
