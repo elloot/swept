@@ -70,7 +70,20 @@ function generateIndices(
   for (let i = 0; i < width * height; i++) {
     indices.push(i);
   }
-  indices.splice(indices.indexOf(firstTileIndex), 1);
+  iterateOverClosestTiles(
+    indexToCoords(firstTileIndex, width),
+    width,
+    height,
+    (closeTilePos) => {
+      const closeTileIndex = coordsToIndex(
+        closeTilePos.x,
+        closeTilePos.y,
+        width
+      );
+      indices.splice(indices.indexOf(closeTileIndex), 1);
+    }
+  );
+  indices.splice(indices.indexOf(firstTileIndex));
   return indices;
 }
 
