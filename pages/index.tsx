@@ -7,6 +7,7 @@ import {
   useRef,
   useState
 } from 'react';
+import Head from 'next/head';
 import {
   generateBoardWithMines as generateArrayWithMines,
   fillBoardWithMineCounts as fillTileArrayWithMineCounts,
@@ -242,37 +243,42 @@ export default function Home() {
   }, [indexOfFirstClickedTile, board.tiles, revealClosestTiles]);
 
   return (
-    <div
-      style={{
-        width: 988 + 'px',
-        height: 'auto',
-        display: 'flex',
-        flexWrap: 'wrap'
-      }}
-      onContextMenu={(e) => e.preventDefault()}
-    >
-      {board.tiles.map((value, index) => {
-        const tileRef = createRef<Tile>();
-        tileElements.push(tileRef);
-        const utilityFunctions = {
-          hideClosestHighlightedTiles,
-          highlightClosestHiddenTiles,
-          revealClosestIfCorrectlyFlagged,
-          flagCountNearTileIsCorrect
-        };
-        return (
-          <Tile
-            width={10}
-            height={10}
-            handleClick={clickHandler}
-            value={value}
-            index={index}
-            key={index}
-            ref={tileRef}
-            {...utilityFunctions}
-          />
-        );
-      })}
-    </div>
+    <>
+      <Head>
+        <title>swept</title>
+      </Head>
+      <div
+        style={{
+          width: 988 + 'px',
+          height: 'auto',
+          display: 'flex',
+          flexWrap: 'wrap'
+        }}
+        onContextMenu={(e) => e.preventDefault()}
+      >
+        {board.tiles.map((value, index) => {
+          const tileRef = createRef<Tile>();
+          tileElements.push(tileRef);
+          const utilityFunctions = {
+            hideClosestHighlightedTiles,
+            highlightClosestHiddenTiles,
+            revealClosestIfCorrectlyFlagged,
+            flagCountNearTileIsCorrect
+          };
+          return (
+            <Tile
+              width={10}
+              height={10}
+              handleClick={clickHandler}
+              value={value}
+              index={index}
+              key={index}
+              ref={tileRef}
+              {...utilityFunctions}
+            />
+          );
+        })}
+      </div>
+    </>
   );
 }
