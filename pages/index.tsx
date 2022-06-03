@@ -1,5 +1,5 @@
 import { Tile } from '../components/Tile';
-import { createRef, useCallback, useEffect, useMemo, useState } from 'react';
+import { createRef, useCallback, useEffect, useRef, useState } from 'react';
 import {
   generateBoardWithMines,
   fillBoardWithMineCounts,
@@ -19,6 +19,13 @@ export default function Home() {
     Array(boardWidth * boardHeight).fill(1)
   );
   const tiles: React.RefObject<Tile>[] = [];
+  const [playerHasLost, setPlayerHasLost] = useState<boolean>(false);
+  const numberOfRenders = useRef(0);
+
+  function gameOver() {
+    const shouldReload = confirm('You lost\n\nConfirm to reload').valueOf();
+    if (shouldReload) window.location.reload();
+  }
 
   function revealNearestIfCorrectlyFlagged(tileIndex: number) {
     if (
@@ -50,7 +57,7 @@ export default function Home() {
           }
         );
       } else {
-        // GAME OVER
+        setPlayerHasLost(true);
       }
     }
   }
@@ -156,6 +163,10 @@ export default function Home() {
       setIndexOfFirstClickedTile(tileIndex);
     }
 
+    if (board[tileIndex] === -1) {
+      setPlayerHasLost(true);
+    }
+
     if (board[tileIndex] === 0) {
       const visitedZeroTiles = [tileIndex];
       revealClosestTiles(tileIndex, visitedZeroTiles);
@@ -193,7 +204,7 @@ export default function Home() {
     [board, tiles]
   );
 
-  function generateBoard(firstTileIndex: number) {
+  function generateBoard(firstTileIndex: number): number[] {
     const tempBoard = generateBoardWithMines(
       boardWidth,
       boardHeight,
@@ -204,6 +215,14 @@ export default function Home() {
 
     return tempBoard;
   }
+
+  useEffect(() => {
+    if (numberOfRenders.current < 2) {
+      numberOfRenders.current++;
+    } else if (playerHasLost) {
+      gameOver();
+    }
+  }, [playerHasLost, numberOfRenders]);
 
   useEffect(() => {
     if (board[indexOfFirstClickedTile] === 0) {
