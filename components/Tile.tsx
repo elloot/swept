@@ -10,6 +10,7 @@ interface TileProps {
   hideClosestHighlightedTiles: (index: number) => void;
   highlightClosestHiddenTiles: (index: number) => void;
   revealClosestIfCorrectlyFlagged: (index: number) => void;
+  flagCountNearTileIsCorrect: (index: number) => boolean;
 }
 
 type Face = 'HIDDEN' | 'FLAGGED' | 'CLEAR' | 'MINE' | 'HIGHLIGHTED';
@@ -75,17 +76,18 @@ export class Tile extends React.Component<TileProps> {
           }
         }}
         onMouseUp={(e) => {
-          // if left mouse button is released while right mouse button is pressed OR
-          // if right mouse button is released while left mouse button is pressed OR
-          // if middle mouse button is released
-          if (e.buttons === 2 || e.buttons === 1 || e.button === 1) {
-            this.props.hideClosestHighlightedTiles(this.props.index);
-            if (this.state.face === 'HIGHLIGHTED') {
-              this.setFace('HIDDEN');
+          // if right and left mouse button were pressed together and now one of them has been released OR
+          // if middle mouse button has been released
+          if (
+            (e.button === 0 && e.buttons === 2) ||
+            (e.button === 2 && e.buttons === 1) ||
+            e.button === 1
+          ) {
+            if (this.props.flagCountNearTileIsCorrect(this.props.index)) {
+              this.props.revealClosestIfCorrectlyFlagged(this.props.index);
+            } else {
+              this.props.hideClosestHighlightedTiles(this.props.index);
             }
-          }
-          if (e.button === 1) {
-            this.props.revealClosestIfCorrectlyFlagged(this.props.index);
           }
         }}
         onContextMenu={(e) => {
