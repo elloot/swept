@@ -239,6 +239,7 @@ export default function Home() {
         display: 'flex',
         flexWrap: 'wrap'
       }}
+      onContextMenu={(e) => e.preventDefault()}
     >
       {board.map((value, index) => {
         const tileRef = createRef<Tile>();
