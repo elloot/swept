@@ -29,7 +29,7 @@ function countMinesNearTile(
   tileIndex: number,
   tileBoard: number[],
   boardWidth: number,
-  boardHeight
+  boardHeight: number
 ): number {
   const tilePos = indexToCoords(tileIndex, boardWidth);
   let mineCount = 0;
