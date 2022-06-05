@@ -83,9 +83,10 @@ function iterateOverClosestTiles(
   for (let y = -1; y <= 1; y++) {
     for (let x = -1; x <= 1; x++) {
       if (
-        board.tiles[
-          coordsToIndex(centerTilePos.x + x, centerTilePos.y + y, board.width)
-        ] !== undefined
+        centerTilePos.x + x >= 0 &&
+        centerTilePos.x + x < board.width &&
+        centerTilePos.y + y >= 0 &&
+        centerTilePos.y + y < board.height
       ) {
         callback({ x: centerTilePos.x + x, y: centerTilePos.y + y });
       }
