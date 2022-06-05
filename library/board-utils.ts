@@ -8,7 +8,7 @@ function indexToCoords(index: number, board: Board): { x: number; y: number } {
   return { x: index % board.width, y: Math.floor(index / board.width) };
 }
 
-function fillBoardWithMineCounts(mineBoard: number[], board: Board) {
+function fillTileArrayWithMineCounts(mineBoard: number[], board: Board) {
   for (let tileIndex = 0; tileIndex < mineBoard.length; tileIndex++) {
     const tileValue = mineBoard[tileIndex];
     if (tileValue === 0) {
@@ -25,7 +25,7 @@ function fillBoardWithMineCounts(mineBoard: number[], board: Board) {
 function countMinesNearTile(tileIndex: number, board: Board): number {
   const tilePos = indexToCoords(tileIndex, board);
   let mineCount = 0;
-  iterateOverClosestTiles(tilePos, board, (closeTilePos) => {
+  forEachCloseTile(tilePos, board, (closeTilePos) => {
     if (
       board.tiles[
         coordsToIndex(closeTilePos.x, closeTilePos.y, board.width)
@@ -37,7 +37,7 @@ function countMinesNearTile(tileIndex: number, board: Board): number {
   return mineCount;
 }
 
-function generateBoardWithMines(
+function generateArrayWithMines(
   board: Board,
   firstTileIndex: number
 ): number[] {
@@ -59,7 +59,7 @@ function generateIndices(board: Board, firstTileIndex: number): number[] {
   for (let i = 0; i < board.width * board.height; i++) {
     indices.push(i);
   }
-  iterateOverClosestTiles(
+  forEachCloseTile(
     indexToCoords(firstTileIndex, board),
     board,
     (closeTilePos) => {
@@ -75,7 +75,7 @@ function generateIndices(board: Board, firstTileIndex: number): number[] {
   return indices;
 }
 
-function iterateOverClosestTiles(
+function forEachCloseTile(
   centerTilePos: { x: number; y: number },
   board: Board,
   callback: (closeTilePos: { x: number; y: number }) => void
@@ -97,8 +97,8 @@ function iterateOverClosestTiles(
 export {
   coordsToIndex,
   indexToCoords,
-  generateBoardWithMines,
-  fillBoardWithMineCounts,
-  iterateOverClosestTiles,
+  generateArrayWithMines,
+  fillTileArrayWithMineCounts,
+  forEachCloseTile,
   countMinesNearTile
 };
