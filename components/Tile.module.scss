@@ -16,6 +16,7 @@
 }
 
 .tile__text {
+  user-select: none;
   font-weight: bold;
   &1 {
     color: blue;
