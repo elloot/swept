@@ -38,11 +38,6 @@ export class Tile extends React.Component<TileProps> {
   render() {
     return (
       <div
-        style={{
-          width: this.props.width + 'px',
-          height: this.props.height + 'px',
-          margin: '11px'
-        }}
         onClick={(e) => {
           this.setFace(this.props.value === -1 ? 'MINE' : 'CLEAR');
           this.props.handleClick(this.props.index);
@@ -93,9 +88,9 @@ export class Tile extends React.Component<TileProps> {
         onContextMenu={(e) => {
           e.preventDefault();
         }}
-        className={`${styles.tile} ${
-          styles[this.state.face.toLowerCase()] || ''
-        }`}
+        className={`${styles.tile} ${styles.tile__text} ${
+          styles[`tile__text${this.props.value}`]
+        } ${styles[this.state.face.toLowerCase()] || ''}`}
       >
         {this.state.face === 'CLEAR' &&
           this.props.value !== -1 &&

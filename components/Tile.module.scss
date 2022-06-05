@@ -7,7 +7,40 @@
 }
 
 .tile {
-  border: 1px black solid;
+  width: 24px;
+  height: 24px;
+  border: 2px lightgray solid;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tile__text {
+  font-weight: bold;
+  &1 {
+    color: blue;
+  }
+  &2 {
+    color: green;
+  }
+  &3 {
+    color: red;
+  }
+  &4 {
+    color: darkblue;
+  }
+  &5 {
+    color: brown;
+  }
+  &6 {
+    color: cadetblue;
+  }
+  &7 {
+    color: black;
+  }
+  &8 {
+    color: gray;
+  }
 }
 
 .mine {

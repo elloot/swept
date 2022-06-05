@@ -247,15 +247,7 @@ export default function Home() {
       <Head>
         <title>swept</title>
       </Head>
-      <div
-        style={{
-          width: 988 + 'px',
-          height: 'auto',
-          display: 'flex',
-          flexWrap: 'wrap'
-        }}
-        onContextMenu={(e) => e.preventDefault()}
-      >
+      <div className="board" onContextMenu={(e) => e.preventDefault()}>
         {board.tiles.map((value, index) => {
           const tileRef = createRef<Tile>();
           tileElements.push(tileRef);
