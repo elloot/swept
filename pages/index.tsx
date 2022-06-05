@@ -40,6 +40,20 @@ export default function Home() {
   }, [tiles]);
   const [playerHasLost, setPlayerHasLost] = useState<boolean>(false);
   const numberOfRenders = useRef(0);
+  const [playerHasWon, setPlayerHasWon] = useState<boolean>(false);
+
+  function checkIfPlayerHasWon(): void {
+    let hasWon = true;
+    for (const tileRef of tileElements) {
+      const tile = tileRef.current;
+      if (tile.getValue() !== -1) {
+        if (tile.getFace() !== 'HIDDEN') {
+          hasWon = false;
+        }
+      }
+    }
+    setPlayerHasWon(hasWon);
+  }
 
   function flagCountNearTileIsCorrect(tileIndex: number): boolean {
     return (
@@ -47,8 +61,8 @@ export default function Home() {
     );
   }
 
-  function gameOver() {
-    const shouldReload = confirm('You lost\n\nConfirm to reload').valueOf();
+  function gameOver(state: 'won' | 'lost') {
+    const shouldReload = confirm(`You ${state}\n\nConfirm to reload`).valueOf();
     if (shouldReload) window.location.reload();
   }
 
@@ -185,12 +199,15 @@ export default function Home() {
 
     if (board.tiles[tileIndex] === -1) {
       setPlayerHasLost(true);
+      return;
     }
 
     if (board.tiles[tileIndex] === 0) {
       const visitedZeroTiles = [tileIndex];
       revealClosestTiles(tileIndex, visitedZeroTiles);
     }
+
+    checkIfPlayerHasWon();
   }
 
   const revealClosestTiles = useCallback(
@@ -231,9 +248,17 @@ export default function Home() {
     if (numberOfRenders.current < 2) {
       numberOfRenders.current++;
     } else if (playerHasLost) {
-      gameOver();
+      gameOver('lost');
     }
   }, [playerHasLost, numberOfRenders]);
+
+  useEffect(() => {
+    if (numberOfRenders.current < 2) {
+      numberOfRenders.current++;
+    } else if (playerHasWon) {
+      gameOver('won');
+    }
+  }, [playerHasWon, numberOfRenders]);
 
   useEffect(() => {
     if (board.tiles[indexOfFirstClickedTile] === 0) {
