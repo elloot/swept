@@ -17,7 +17,10 @@ import {
 } from '../../library/board-utils';
 import { GameBoard } from '../../types/gameBoard';
 import { BoardRestartButton } from './BoardRestartButton';
+import { BoardTimer } from './BoardTimer';
+import { BoardMineCounter } from './BoardMineCounter';
 import { GameState } from '../../types/gameState';
+import styles from './Board.module.scss';
 
 interface BoardProps {}
 
@@ -46,7 +49,8 @@ export const Board: React.FC<BoardProps> = ({}) => {
     return goodArray;
   }, [tiles]);
   const numberOfRenders = useRef(0);
-  const [gameState, setGameState] = useState<GameState>('ONGOING');
+  const [gameState, setGameState] = useState<GameState>(undefined);
+  const [numberOfFlags, setNumberOfFlags] = useState<number>(99);
 
   function checkIfPlayerHasWon(): void {
     let hasWon = true;
@@ -190,6 +194,7 @@ export const Board: React.FC<BoardProps> = ({}) => {
       setHasRun(true);
       setIndexOfFirstClickedTile(tileIndex);
       setTiles(generateTileArray(tileIndex));
+      setGameState('ONGOING');
     }
 
     if (board.tiles[tileIndex] === -1) {
@@ -239,6 +244,18 @@ export const Board: React.FC<BoardProps> = ({}) => {
     return tileArray;
   }
 
+  function flagPlaced() {
+    setNumberOfFlags((previousValue) => previousValue - 1);
+  }
+
+  function flagRemoved() {
+    setNumberOfFlags((previousValue) => previousValue + 1);
+  }
+
+  function checkIfFlagCanBePlaced(): boolean {
+    return numberOfFlags >= 1;
+  }
+
   useEffect(() => {
     if (numberOfRenders.current < 3) {
       numberOfRenders.current++;
@@ -264,7 +281,8 @@ export const Board: React.FC<BoardProps> = ({}) => {
     const newTilesArray = Array(boardWidth * boardHeight).fill(1);
     setTiles(newTilesArray);
     setHasRun(false);
-    setGameState('ONGOING');
+    setNumberOfFlags(99);
+    setGameState(undefined);
   }
 
   function restartButtonClickHandler() {
@@ -280,7 +298,10 @@ export const Board: React.FC<BoardProps> = ({}) => {
         hideClosestHighlightedTiles,
         highlightClosestHiddenTiles,
         revealClosestIfCorrectlyFlagged,
-        flagCountNearTileIsCorrect
+        flagCountNearTileIsCorrect,
+        flagPlaced,
+        flagRemoved,
+        checkIfFlagCanBePlaced
       };
       tileElements.push(
         <Tile
@@ -300,12 +321,18 @@ export const Board: React.FC<BoardProps> = ({}) => {
 
   return (
     <>
-      <BoardRestartButton
-        clickHandler={restartButtonClickHandler}
-        gameState={gameState}
-      />
-      <div className="board" onContextMenu={(e) => e.preventDefault()}>
-        {generateTileElements()}
+      <div className={styles.boardContainer}>
+        <div className={styles.boardHead}>
+          <BoardMineCounter numberOfFlags={numberOfFlags} />
+          <BoardRestartButton
+            clickHandler={restartButtonClickHandler}
+            gameState={gameState}
+          />
+          <BoardTimer gameState={gameState} />
+        </div>
+        <div className={styles.board} onContextMenu={(e) => e.preventDefault()}>
+          {generateTileElements()}
+        </div>
       </div>
     </>
   );

@@ -11,6 +11,9 @@ interface TileProps {
   highlightClosestHiddenTiles: (index: number) => void;
   revealClosestIfCorrectlyFlagged: (index: number) => void;
   flagCountNearTileIsCorrect: (index: number) => boolean;
+  flagPlaced: () => void;
+  flagRemoved: () => void;
+  checkIfFlagCanBePlaced: () => boolean;
 }
 
 type Face = 'HIDDEN' | 'FLAGGED' | 'CLEAR' | 'MINE' | 'HIGHLIGHTED';
@@ -65,10 +68,14 @@ export class Tile extends React.Component<TileProps> {
           // if right mouse button is pressed
           if (e.button === 2) {
             if (this.state.face === 'HIDDEN') {
-              this.setFace('FLAGGED');
+              if (this.props.checkIfFlagCanBePlaced() === true) {
+                this.setFace('FLAGGED');
+                this.props.flagPlaced();
+              }
             }
             if (this.state.face === 'FLAGGED') {
               this.setFace('HIDDEN');
+              this.props.flagRemoved();
             }
           }
         }}
