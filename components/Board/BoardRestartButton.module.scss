@@ -1,0 +1,19 @@
+.button {
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  background: black;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  &:active {
+    background: white;
+  }
+  span {
+    user-select: none;
+    color: white;
+    font-size: 28px;
+    font-weight: bold;
+  }
+}
