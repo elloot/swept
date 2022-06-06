@@ -18,7 +18,7 @@ type Face = 'HIDDEN' | 'FLAGGED' | 'CLEAR' | 'MINE' | 'HIGHLIGHTED';
 export class Tile extends React.Component<TileProps> {
   state: { face: Face };
 
-  constructor(props) {
+  constructor(props: TileProps) {
     super(props);
     this.state = { face: 'HIDDEN' };
   }
