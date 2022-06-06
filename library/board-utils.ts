@@ -1,14 +1,17 @@
-import { Board } from '../types/board';
+import { GameBoard } from '../types/gameBoard';
 
 function coordsToIndex(x: number, y: number, width: number): number {
   return y * width + x;
 }
 
-function indexToCoords(index: number, board: Board): { x: number; y: number } {
+function indexToCoords(
+  index: number,
+  board: GameBoard
+): { x: number; y: number } {
   return { x: index % board.width, y: Math.floor(index / board.width) };
 }
 
-function fillTileArrayWithMineCounts(mineBoard: number[], board: Board) {
+function fillTileArrayWithMineCounts(mineBoard: number[], board: GameBoard) {
   for (let tileIndex = 0; tileIndex < mineBoard.length; tileIndex++) {
     const tileValue = mineBoard[tileIndex];
     if (tileValue === 0) {
@@ -22,7 +25,7 @@ function fillTileArrayWithMineCounts(mineBoard: number[], board: Board) {
   }
 }
 
-function countMinesNearTile(tileIndex: number, board: Board): number {
+function countMinesNearTile(tileIndex: number, board: GameBoard): number {
   const tilePos = indexToCoords(tileIndex, board);
   let mineCount = 0;
   forEachCloseTile(tilePos, board, (closeTilePos) => {
@@ -38,7 +41,7 @@ function countMinesNearTile(tileIndex: number, board: Board): number {
 }
 
 function generateArrayWithMines(
-  board: Board,
+  board: GameBoard,
   firstTileIndex: number
 ): number[] {
   const tempBoard: number[] = Array(board.width * board.height);
@@ -54,7 +57,7 @@ function generateArrayWithMines(
   return tempBoard;
 }
 
-function generateIndices(board: Board, firstTileIndex: number): number[] {
+function generateIndices(board: GameBoard, firstTileIndex: number): number[] {
   let indices: number[] = [];
   for (let i = 0; i < board.width * board.height; i++) {
     indices.push(i);
@@ -77,7 +80,7 @@ function generateIndices(board: Board, firstTileIndex: number): number[] {
 
 function forEachCloseTile(
   centerTilePos: { x: number; y: number },
-  board: Board,
+  board: GameBoard,
   callback: (closeTilePos: { x: number; y: number }) => void
 ) {
   for (let y = -1; y <= 1; y++) {
@@ -89,7 +92,7 @@ function forEachCloseTile(
   }
 }
 
-function coordIsInBoard(x: number, y: number, board: Board): boolean {
+function coordIsInBoard(x: number, y: number, board: GameBoard): boolean {
   return x >= 0 && x < board.width && y >= 0 && y < board.height;
 }
 
