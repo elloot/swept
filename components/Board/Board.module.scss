@@ -1,0 +1,14 @@
+.board {
+  display: grid;
+  grid-template-columns: repeat(30, auto);
+}
+
+.boardHead {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.boardContainer {
+}
