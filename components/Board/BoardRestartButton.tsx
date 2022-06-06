@@ -19,6 +19,7 @@ export const BoardRestartButton: React.FC<BoardRestartButtonProps> = ({
             switch (gameState) {
               case 'LOST':
                 return '😵';
+              case undefined:
               case 'ONGOING':
                 return '🙂';
               case 'WON':
