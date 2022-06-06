@@ -20,8 +20,3 @@ a {
 * {
   box-sizing: border-box;
 }
-
-.board {
-  display: grid;
-  grid-template-columns: repeat(30, auto);
-}
