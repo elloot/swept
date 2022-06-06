@@ -1,1 +1,1 @@
-export type GameState = 'WON' | 'LOST' | 'ONGOING';
+export type GameState = 'WON' | 'LOST' | 'ONGOING' | undefined;
