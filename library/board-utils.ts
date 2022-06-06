@@ -82,16 +82,15 @@ function forEachCloseTile(
 ) {
   for (let y = -1; y <= 1; y++) {
     for (let x = -1; x <= 1; x++) {
-      if (
-        centerTilePos.x + x >= 0 &&
-        centerTilePos.x + x < board.width &&
-        centerTilePos.y + y >= 0 &&
-        centerTilePos.y + y < board.height
-      ) {
+      if (coordIsInBoard(centerTilePos.x + x, centerTilePos.y + y, board)) {
         callback({ x: centerTilePos.x + x, y: centerTilePos.y + y });
       }
     }
   }
+}
+
+function coordIsInBoard(x: number, y: number, board: Board): boolean {
+  return x >= 0 && x < board.width && y >= 0 && y < board.height;
 }
 
 export {
