@@ -18,6 +18,8 @@ import {
 } from '../library/board-utils';
 import { Board } from '../types/board';
 
+type GameState = 'WON' | 'LOST' | 'ONGOING';
+
 export default function Home() {
   const [hasRun, setHasRun] = useState<boolean>(false);
   const [indexOfFirstClickedTile, setIndexOfFirstClickedTile] =
@@ -38,21 +40,22 @@ export default function Home() {
     tiles;
     return [];
   }, [tiles]);
-  const [playerHasLost, setPlayerHasLost] = useState<boolean>(false);
   const numberOfRenders = useRef(0);
-  const [playerHasWon, setPlayerHasWon] = useState<boolean>(false);
+  const [gameState, setGameState] = useState<GameState>('ONGOING');
 
   function checkIfPlayerHasWon(): void {
     let hasWon = true;
     for (const tileRef of tileElements) {
       const tile = tileRef.current;
       if (tile.getValue() !== -1) {
-        if (tile.getFace() !== 'HIDDEN') {
+        if (tile.getFace() !== 'CLEAR') {
           hasWon = false;
         }
       }
     }
-    setPlayerHasWon(hasWon);
+    if (hasWon) {
+      setGameState('WON');
+    }
   }
 
   function flagCountNearTileIsCorrect(tileIndex: number): boolean {
@@ -61,10 +64,23 @@ export default function Home() {
     );
   }
 
-  function gameOver(state: 'won' | 'lost') {
-    const shouldReload = confirm(`You ${state}\n\nConfirm to reload`).valueOf();
-    if (shouldReload) window.location.reload();
-  }
+  const gameOver = useCallback(
+    (state: GameState) => {
+      if (state === 'WON') {
+        for (const tileRef of tileElements) {
+          const tile = tileRef.current;
+          if (tile.getValue() === -1) {
+            tile.setFace('FLAGGED');
+          }
+        }
+      }
+      const shouldReload = confirm(
+        `You ${state}\n\nConfirm to reload`
+      ).valueOf();
+      if (shouldReload) window.location.reload();
+    },
+    [tileElements]
+  );
 
   function revealClosestIfCorrectlyFlagged(tileIndex: number) {
     if (flagCountNearTileIsCorrect(tileIndex)) {
@@ -91,8 +107,9 @@ export default function Home() {
             }
           }
         );
+        checkIfPlayerHasWon();
       } else {
-        setPlayerHasLost(true);
+        setGameState('LOST');
       }
     }
   }
@@ -173,7 +190,7 @@ export default function Home() {
     }
 
     if (board.tiles[tileIndex] === -1) {
-      setPlayerHasLost(true);
+      setGameState('LOST');
       return;
     }
 
@@ -220,20 +237,13 @@ export default function Home() {
   }
 
   useEffect(() => {
-    if (numberOfRenders.current < 2) {
+    console.log(numberOfRenders);
+    if (numberOfRenders.current < 3) {
       numberOfRenders.current++;
-    } else if (playerHasLost) {
-      gameOver('lost');
+    } else {
+      gameOver(gameState);
     }
-  }, [playerHasLost, numberOfRenders]);
-
-  useEffect(() => {
-    if (numberOfRenders.current < 2) {
-      numberOfRenders.current++;
-    } else if (playerHasWon) {
-      gameOver('won');
-    }
-  }, [playerHasWon, numberOfRenders]);
+  }, [gameState, numberOfRenders, gameOver]);
 
   useEffect(() => {
     if (board.tiles[indexOfFirstClickedTile] === 0) {
