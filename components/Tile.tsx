@@ -39,8 +39,10 @@ export class Tile extends React.Component<TileProps> {
     return (
       <div
         onClick={(e) => {
-          this.setFace(this.props.value === -1 ? 'MINE' : 'CLEAR');
-          this.props.handleClick(this.props.index);
+          if (this.getFace() !== 'FLAGGED') {
+            this.setFace(this.props.value === -1 ? 'MINE' : 'CLEAR');
+            this.props.handleClick(this.props.index);
+          }
         }}
         onMouseDown={(e) => {
           // if left mouse button is pressed
