@@ -1,4 +1,4 @@
-export type Board = {
+export type GameBoard = {
   width: number;
   height: number;
   tiles: number[];
