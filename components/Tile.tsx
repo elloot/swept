@@ -7,13 +7,6 @@ interface TileProps {
   value: number;
   gameState: GameState;
   handleClick: (index: number) => void;
-  hideClosestHighlightedTiles: (index: number) => void;
-  highlightClosestHiddenTiles: (index: number) => void;
-  revealClosestIfCorrectlyFlagged: (index: number) => void;
-  flagCountNearTileIsCorrect: (index: number) => boolean;
-  flagPlaced: () => void;
-  flagRemoved: () => void;
-  checkIfFlagCanBePlaced: () => boolean;
   handleMouseDown: (
     index: number
   ) => (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;

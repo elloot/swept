@@ -295,15 +295,6 @@ export const Board: React.FC<BoardProps> = ({}) => {
     for (let i = 0; i < board.tiles.length; i++) {
       const tileValue = board.tiles[i];
       const tileRef = tileRefs[i];
-      const utilityFunctions = {
-        hideClosestHighlightedTiles,
-        highlightClosestHiddenTiles,
-        revealClosestIfCorrectlyFlagged,
-        flagCountNearTileIsCorrect,
-        flagPlaced,
-        flagRemoved,
-        checkIfFlagCanBePlaced
-      };
       tileElements.push(
         <Tile
           value={tileValue}
@@ -314,7 +305,6 @@ export const Board: React.FC<BoardProps> = ({}) => {
           handleClick={clickHandler}
           handleMouseDown={tilePressHandler}
           handleMouseUp={tileReleaseHandler}
-          {...utilityFunctions}
         />
       );
     }
