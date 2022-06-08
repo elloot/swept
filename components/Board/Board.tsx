@@ -26,8 +26,7 @@ interface BoardProps {}
 
 export const Board: React.FC<BoardProps> = ({}) => {
   const [hasRun, setHasRun] = useState<boolean>(false);
-  const [indexOfFirstClickedTile, setIndexOfFirstClickedTile] =
-    useState<number>();
+  const indexOfFirstClickedTile = useRef<number>();
   const boardWidth = 30;
   const boardHeight = 16;
   const [tiles, setTiles] = useState<number[]>(
@@ -192,7 +191,7 @@ export const Board: React.FC<BoardProps> = ({}) => {
   function clickHandler(tileIndex: number): void {
     if (!hasRun) {
       setHasRun(true);
-      setIndexOfFirstClickedTile(tileIndex);
+      indexOfFirstClickedTile.current = tileIndex;
       setTiles(generateTileArray(tileIndex));
       setGameState('ONGOING');
     }
@@ -265,15 +264,15 @@ export const Board: React.FC<BoardProps> = ({}) => {
   }, [gameState, numberOfRenders, gameOver]);
 
   useEffect(() => {
-    if (board.tiles[indexOfFirstClickedTile] === 0) {
-      const visitedZeroTiles = [indexOfFirstClickedTile];
-      revealClosestTiles(indexOfFirstClickedTile, visitedZeroTiles);
+    if (board.tiles[indexOfFirstClickedTile.current] === 0) {
+      const visitedZeroTiles = [indexOfFirstClickedTile.current];
+      revealClosestTiles(indexOfFirstClickedTile.current, visitedZeroTiles);
     }
-  }, [indexOfFirstClickedTile, board.tiles, revealClosestTiles]);
+  }, [board.tiles, revealClosestTiles]);
 
   function restart() {
     numberOfRenders.current = 1;
-    setIndexOfFirstClickedTile(undefined);
+    indexOfFirstClickedTile.current = undefined;
     for (const tileRef of tileRefs) {
       const tile = tileRef.current;
       tile.setFace('HIDDEN');
