@@ -314,6 +314,7 @@ export const Board: React.FC<BoardProps> = ({}) => {
   function tilePressHandler(tileIndex: number) {
     return (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
       const tile = tileRefs[tileIndex].current;
+      lastPressedTileIndex.current = tileIndex;
       if (gameState !== 'LOST') {
         // if left mouse button is pressed
         if (e.button === 0) {
@@ -351,7 +352,11 @@ export const Board: React.FC<BoardProps> = ({}) => {
 
   function tileReleaseHandler(tileIndex: number) {
     return (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-      if (gameState !== 'LOST') {
+      lastReleasedTileIndex.current = tileIndex;
+      if (
+        gameState !== 'LOST' &&
+        lastPressedTileIndex.current === lastReleasedTileIndex.current
+      ) {
         // if right and left mouse button were pressed together and now one of them has been released OR
         // if middle mouse button has been released
         if (
@@ -363,6 +368,13 @@ export const Board: React.FC<BoardProps> = ({}) => {
             revealClosestIfCorrectlyFlagged(tileIndex);
           } else {
             hideClosestHighlightedTiles(tileIndex);
+          }
+        }
+      } else {
+        for (const tileRef of tileRefs) {
+          const tile = tileRef.current;
+          if (tile.getFace() === 'HIGHLIGHTED') {
+            tile.setFace('HIDDEN');
           }
         }
       }
