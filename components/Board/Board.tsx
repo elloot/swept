@@ -305,13 +305,12 @@ export const Board: React.FC<BoardProps> = ({}) => {
       };
       tileElements.push(
         <Tile
-          width={10}
-          height={10}
-          handleClick={clickHandler}
           value={tileValue}
           index={i}
           key={i}
           ref={tileRef}
+          gameState={gameState}
+          handleClick={clickHandler}
           {...utilityFunctions}
         />
       );
