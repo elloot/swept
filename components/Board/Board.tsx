@@ -313,6 +313,7 @@ export const Board: React.FC<BoardProps> = ({}) => {
           gameState={gameState}
           handleClick={clickHandler}
           handleMouseDown={tilePressHandler}
+          handleMouseUp={tileReleaseHandler}
           {...utilityFunctions}
         />
       );
@@ -352,6 +353,26 @@ export const Board: React.FC<BoardProps> = ({}) => {
           if (tile.getFace() === 'FLAGGED') {
             tile.setFace('HIDDEN');
             flagRemoved();
+          }
+        }
+      }
+    };
+  }
+
+  function tileReleaseHandler(tileIndex: number) {
+    return (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+      if (gameState !== 'LOST') {
+        // if right and left mouse button were pressed together and now one of them has been released OR
+        // if middle mouse button has been released
+        if (
+          (e.button === 0 && e.buttons === 2) ||
+          (e.button === 2 && e.buttons === 1) ||
+          e.button === 1
+        ) {
+          if (flagCountNearTileIsCorrect(tileIndex)) {
+            revealClosestIfCorrectlyFlagged(tileIndex);
+          } else {
+            hideClosestHighlightedTiles(tileIndex);
           }
         }
       }

@@ -17,6 +17,9 @@ interface TileProps {
   handleMouseDown: (
     index: number
   ) => (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
+  handleMouseUp: (
+    index: number
+  ) => (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
 }
 
 type Face = 'HIDDEN' | 'FLAGGED' | 'CLEAR' | 'MINE' | 'HIGHLIGHTED';
@@ -53,23 +56,7 @@ export class Tile extends React.Component<TileProps> {
           }
         }}
         onMouseDown={this.props.handleMouseDown(this.props.index)}
-        onMouseUp={(e) => {
-          if (this.props.gameState !== 'LOST') {
-            // if right and left mouse button were pressed together and now one of them has been released OR
-            // if middle mouse button has been released
-            if (
-              (e.button === 0 && e.buttons === 2) ||
-              (e.button === 2 && e.buttons === 1) ||
-              e.button === 1
-            ) {
-              if (this.props.flagCountNearTileIsCorrect(this.props.index)) {
-                this.props.revealClosestIfCorrectlyFlagged(this.props.index);
-              } else {
-                this.props.hideClosestHighlightedTiles(this.props.index);
-              }
-            }
-          }
-        }}
+        onMouseUp={this.props.handleMouseUp(this.props.index)}
         onContextMenu={(e) => {
           e.preventDefault();
         }}
