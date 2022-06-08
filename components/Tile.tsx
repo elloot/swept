@@ -14,6 +14,9 @@ interface TileProps {
   flagPlaced: () => void;
   flagRemoved: () => void;
   checkIfFlagCanBePlaced: () => boolean;
+  handleMouseDown: (
+    index: number
+  ) => (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
 }
 
 type Face = 'HIDDEN' | 'FLAGGED' | 'CLEAR' | 'MINE' | 'HIGHLIGHTED';
@@ -49,40 +52,7 @@ export class Tile extends React.Component<TileProps> {
             }
           }
         }}
-        onMouseDown={(e) => {
-          if (this.props.gameState !== 'LOST') {
-            // if left mouse button is pressed
-            if (e.button === 0) {
-              // if right mouse button is also pressed
-              if (e.buttons === 3) {
-                this.props.highlightClosestHiddenTiles(this.props.index);
-              }
-              if (this.state.face === 'HIDDEN') {
-                this.setFace('HIGHLIGHTED');
-              }
-              return;
-            }
-
-            // if middle mouse button is pressed
-            if (e.button === 1) {
-              this.props.highlightClosestHiddenTiles(this.props.index);
-            }
-
-            // if right mouse button is pressed
-            if (e.button === 2) {
-              if (this.state.face === 'HIDDEN') {
-                if (this.props.checkIfFlagCanBePlaced() === true) {
-                  this.setFace('FLAGGED');
-                  this.props.flagPlaced();
-                }
-              }
-              if (this.state.face === 'FLAGGED') {
-                this.setFace('HIDDEN');
-                this.props.flagRemoved();
-              }
-            }
-          }
-        }}
+        onMouseDown={this.props.handleMouseDown(this.props.index)}
         onMouseUp={(e) => {
           if (this.props.gameState !== 'LOST') {
             // if right and left mouse button were pressed together and now one of them has been released OR

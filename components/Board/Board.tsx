@@ -50,6 +50,8 @@ export const Board: React.FC<BoardProps> = ({}) => {
   const numberOfRenders = useRef(0);
   const [gameState, setGameState] = useState<GameState>(undefined);
   const [numberOfFlags, setNumberOfFlags] = useState<number>(99);
+  const lastPressedTileIndex = useRef<number>(undefined);
+  const lastReleasedTileIndex = useRef<number>(undefined);
 
   function checkIfPlayerHasWon(): void {
     let hasWon = true;
@@ -310,11 +312,50 @@ export const Board: React.FC<BoardProps> = ({}) => {
           ref={tileRef}
           gameState={gameState}
           handleClick={clickHandler}
+          handleMouseDown={tilePressHandler}
           {...utilityFunctions}
         />
       );
     }
     return tileElements;
+  }
+
+  function tilePressHandler(tileIndex: number) {
+    return (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+      const tile = tileRefs[tileIndex].current;
+      if (gameState !== 'LOST') {
+        // if left mouse button is pressed
+        if (e.button === 0) {
+          // if right mouse button is also pressed
+          if (e.buttons === 3) {
+            highlightClosestHiddenTiles(tileIndex);
+          }
+          if (tile.getFace() === 'HIDDEN') {
+            tile.setFace('HIGHLIGHTED');
+          }
+          return;
+        }
+
+        // if middle mouse button is pressed
+        if (e.button === 1) {
+          highlightClosestHiddenTiles(tileIndex);
+        }
+
+        // if right mouse button is pressed
+        if (e.button === 2) {
+          if (tile.getFace() === 'HIDDEN') {
+            if (checkIfFlagCanBePlaced() === true) {
+              tile.setFace('FLAGGED');
+              flagPlaced();
+            }
+          }
+          if (tile.getFace() === 'FLAGGED') {
+            tile.setFace('HIDDEN');
+            flagRemoved();
+          }
+        }
+      }
+    };
   }
 
   return (
