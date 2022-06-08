@@ -6,7 +6,6 @@ interface TileProps {
   index: number;
   value: number;
   gameState: GameState;
-  handleClick: (index: number) => void;
   handleMouseDown: (
     index: number
   ) => (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
@@ -40,14 +39,6 @@ export class Tile extends React.Component<TileProps> {
   render() {
     return (
       <div
-        onClick={(e) => {
-          if (this.props.gameState !== 'LOST') {
-            if (this.getFace() !== 'FLAGGED') {
-              this.setFace(this.props.value === -1 ? 'MINE' : 'CLEAR');
-              this.props.handleClick(this.props.index);
-            }
-          }
-        }}
         onMouseDown={this.props.handleMouseDown(this.props.index)}
         onMouseUp={this.props.handleMouseUp(this.props.index)}
         onContextMenu={(e) => {

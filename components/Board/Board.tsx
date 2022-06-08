@@ -302,7 +302,6 @@ export const Board: React.FC<BoardProps> = ({}) => {
           key={i}
           ref={tileRef}
           gameState={gameState}
-          handleClick={clickHandler}
           handleMouseDown={tilePressHandler}
           handleMouseUp={tileReleaseHandler}
         />
@@ -357,6 +356,13 @@ export const Board: React.FC<BoardProps> = ({}) => {
         gameState !== 'LOST' &&
         lastPressedTileIndex.current === lastReleasedTileIndex.current
       ) {
+        const tile = tileRefs[tileIndex].current;
+        if (e.button === 0 && e.buttons === 0) {
+          if (tile.getFace() !== 'FLAGGED') {
+            tile.setFace(tile.getValue() === -1 ? 'MINE' : 'CLEAR');
+            clickHandler(tileIndex);
+          }
+        }
         // if right and left mouse button were pressed together and now one of them has been released OR
         // if middle mouse button has been released
         if (
